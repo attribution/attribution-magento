@@ -1,5 +1,5 @@
 <h1>Attribution for Magento 1</h1>
-<p><strong>Attribution for Magento</strong> is a Magento plugin for <a href="https://attributionapp.com" rel="nofollow">Attribution</a>.</p>
+<p>This is Magento plugin for <a href="https://attributionapp.com" rel="nofollow">Attribution</a>.</p>
 
 <h2>Installation</h2>
 <ol>
