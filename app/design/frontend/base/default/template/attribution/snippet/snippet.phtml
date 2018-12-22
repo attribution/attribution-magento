@@ -1,0 +1,103 @@
+<?php
+    /* @var $helper Attribution_Snippet_Helper_Data */
+    $helper = Mage::helper('attribution_snippet');
+    $onepageData = $this->getOnepageSuccessIdentify();
+    $customerSales = "";
+    $customerOrders = "";
+    if (!empty($onepageData['user_id'])) {
+        $userTotals = $helper->getCustomerLifetimeStat($onepageData['user_id']);
+        if (!empty($userTotals)) {
+            $customerSales = $userTotals->getLifetime();
+            $customerOrders = $userTotals->getNumOrders();
+        }
+    }
+    $customerRegistered = $this->checkIfRegisteredInCheckout();
+    if (!empty($customerRegistered)) {
+        $setCookie = $helper->setLoginCookie(0);
+    }
+    $currentCustomer = $this->loginIdentifyData();
+?>
+<?php if ($helper->isActive() && !empty($helper->getAccountId())): ?>
+    <script type="text/javascript">
+        window.Attribution = window.Attribution||[];
+        window.Attribution.methods = ["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","group","track","ready","alias","page","once","off","on"];
+        window.Attribution.factory=function(e){
+            return function(){
+                var t=Array.prototype.slice.call(arguments);
+                t.unshift(e);
+                window.Attribution.push(t);
+                return window.Attribution
+            }
+        };
+        for(var i=0;i<window.Attribution.methods.length;i++){
+            var key=window.Attribution.methods[i];
+            window.Attribution[key]=window.Attribution.factory(key)}window.Attribution.load=function(e){
+                if(document.getElementById("attribution-js"))
+                    return;
+                var t=document.createElement("script");
+                t.type="text/javascript";
+                t.id="attribution-js";
+                t.async=true;
+                t.src="//scripts.attributionapp.com/attribution.js";
+                var n=document.getElementsByTagName("script")[0];
+                n.parentNode.insertBefore(t,n)};
+        window.Attribution.load();
+        window.Attribution.projectId="<?php echo $helper->getAccountId(); ?>";
+        window.Attribution.page();
+
+    <?php if ($onepageData) : ?>
+        var userId = '<?php echo $onepageData['user_id']?>' || null;
+
+        if (userId == null) {
+            window.Attribution.track("Purchase Complete", {
+                    revenue: "<?php echo $onepageData['revenue']?>",
+                }
+            )
+        }
+        var customerSales = '<?php echo $customerSales;?>' || null;
+        var customerTotalOrder = '<?php echo $customerOrders;?>' || null;
+        <?php if (!empty($customerRegistered)):?>
+            var customerId = '<?php echo $customerRegistered->getCustomerId()?>' || null;
+            window.Attribution.identify(
+                customerId, {
+                    email: '<?php echo $customerRegistered->getCustomerEmail();?>',
+                    first_name: '<?php echo $customerRegistered->getCustomerFirstname();?>',
+                    last_name: '<?php echo $customerRegistered->getCustomerLastname();?>',
+                    order_count: customerTotalOrder,
+                    ltv_revenue: customerSales,
+                    createdAt: '<?php echo $helper->getFormattedCurrentTime();?>'
+                }
+            );
+            window.Attribution.track("Sign Up");
+            window.Attribution.track("Login");
+        <?php else: ?>
+            window.Attribution.identify(
+                userId, {
+                    email: '<?php echo $onepageData["email"];?>',
+                    first_name: '<?php echo $onepageData["first_name"];?>',
+                    last_name: '<?php echo $onepageData["last_name"];?>',
+                    <?php if($onepageData['user_id']):?>
+                    order_count: customerTotalOrder,
+                    ltv_revenue: customerSales,
+                    <?php endif; ?>
+                }
+            );
+        <?php endif;?>
+    <?php endif;?>
+
+    <?php if ($this->loginEvent()): ?>
+        <?php if ($currentCustomer): ?>
+            var currentCustomerId = '<?php echo $currentCustomer->getId()?>';
+            window.Attribution.identify(
+                currentCustomerId, {
+                    email: '<?php echo $currentCustomer->getEmail();?>',
+                    first_name: '<?php echo $currentCustomer->getFirstname();?>',
+                    last_name: '<?php echo $currentCustomer->getLastname();?>',
+                }
+            );
+        <?php endif;?>
+        window.Attribution.track("Login");
+    <?php endif;?>
+
+    </script>
+<?php endif;?>

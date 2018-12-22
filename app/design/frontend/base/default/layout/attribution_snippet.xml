@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout version="0.1.0">
+    <default>
+        <reference name="before_body_end">
+            <block type="attribution_snippet/snippet" name="attribution_snippet_analytics" template="attribution/snippet/snippet.phtml" />
+        </reference>
+    </default>
+</layout>

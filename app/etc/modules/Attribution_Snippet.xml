@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Attribution_Snippet>
+            <active>true</active>
+            <codePool>community</codePool>
+        </Attribution_Snippet>
+    </modules>
+</config>
